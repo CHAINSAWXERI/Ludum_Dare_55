@@ -6,54 +6,36 @@ namespace Player
     [RequireComponent(typeof(Rigidbody2D))]
     public class PlayerMovement : MonoBehaviour
     {
-        [SerializeField] private float speedMoving;
+        [SerializeField] private float speedMoving; // швидкість руху персонажа
         private Rigidbody2D _rb;
-        private Vector2 _directionMoving;
         private PlayerInput _input;
-        private Camera _camera;
-        
 
         private void Start()
         {
-            _rb = GetComponent<Rigidbody2D>();
-            _camera = Camera.main;
+            _rb = GetComponent<Rigidbody2D>(); // отримуємо доступ до Rigidbody2D
         }
 
         [Inject]
-        public void SetInput(PlayerInput input)
+        public void Construct(PlayerInput input)
         {
-            _input = input;
+            _input = input; // встановлюємо об'єкт введення
         }
 
         private void FixedUpdate()
         {
-            AimPosition();
-            PlayerRotate();
             PlayerMove();
-        }
-
-        private Vector3 AimPosition()
-        {
-            Vector3 mousePosition = _input.Player.Rotate.ReadValue<Vector2>();
-            return mousePosition;
-        }
-
-
-        private void PlayerRotate()
-        {
-            var ss = _camera.WorldToScreenPoint(transform.position);
-            var aa = AimPosition();
-            var direction = aa - ss;
-            var angle = Mathf.Atan2(direction.y, direction.x) * Mathf. Rad2Deg;
-            transform. rotation = Quaternion.AngleAxis(angle - 90, Vector3.forward);
         }
 
         private void PlayerMove()
         {
-            Vector3 dir = _input.Player.Moving.ReadValue<Vector2>();
-            var thisTransform = transform;
-            //var currentDirection = thisTransform.up * dir.y + thisTransform.right * dir.x;
-            _rb.velocity = dir * speedMoving;
+            Vector2 dir = _input.Player.Moving.ReadValue<Vector2>(); // читаємо значення вектора руху
+            _rb.velocity = dir * speedMoving; // застосовуємо швидкість до вектора руху
+
+            if (dir != Vector2.zero)
+            {
+                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg; // обчислюємо кут на основі вектора руху
+                transform.rotation = Quaternion.Euler(0, 0, angle); // повертаємо персонажа на відповідний кут
+            }
         }
     }
 }
