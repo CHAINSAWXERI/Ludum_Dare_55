@@ -1,4 +1,6 @@
+using deVoid.Utils;
 using Input;
+using InteractionSystem;
 using Zenject;
 
 namespace Core
@@ -13,11 +15,39 @@ namespace Core
         {
             _playerInput = playerInput;
             _inputHandler = inputHandler;
+            Subscribe();
         }
 
         public void StartGame()
         {
-            _playerInput.Player.Enable();
+            EnableMovement(true);
+        }
+
+        public void Bind()
+        {
+            _playerInput.Player.Interactive.performed += _inputHandler.EnterDialogue;
+        }
+
+        private void Subscribe()
+        {
+            Signals.Get<OnEnableMovement>().AddListener(EnableMovement);
+        }
+
+        public void Unsubscribe()
+        {
+            Signals.Get<OnEnableMovement>().RemoveListener(EnableMovement);
+        }
+
+        private void EnableMovement(bool IsEnable)
+        {
+            if (IsEnable)
+            {
+                _playerInput.Player.Enable();
+            }
+            else 
+            {
+                _playerInput.Player.Disable();
+            }
         }
     }
 }

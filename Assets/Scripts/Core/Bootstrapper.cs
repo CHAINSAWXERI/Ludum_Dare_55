@@ -9,12 +9,17 @@ namespace Core
 
         private void Awake()
         {
-            
+            _game.Bind();
         }
 
         private void Start()
         {
             _game.StartGame();
+        }
+
+        private void OnDestroy()
+        {
+            _game.Unsubscribe();
         }
     }
 }

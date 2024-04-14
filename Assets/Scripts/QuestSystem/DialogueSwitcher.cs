@@ -1,4 +1,5 @@
 using System.Collections;
+using deVoid.Utils;
 using QuestSystem.Data;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
@@ -32,15 +33,10 @@ namespace QuestSystem
             _currentDialogue = _currentLocalizedDialogueSequenceSo.Dialogues[0];
             if (_currentDialogue != null)
             {
-                StartCoroutine(DisplayDialogue(_currentDialogue));
+                dialogueView.EnableDialogue(this);
+                dialogueView.UpdateDialogueUI(_currentDialogue.line, _currentDialogue.speakerIcon);
+                Signals.Get<OnEnableMovement>().Dispatch(false);
             }
-        }
-
-        private IEnumerator DisplayDialogue(Dialogue dialogue)
-        {
-            dialogueView.UpdateDialogueUI(dialogue.line, dialogue.speakerIcon);
-            yield return new WaitForSeconds(waitTime);
-            ProceedToNextDialogue();
         }
 
         public void ProceedToNextDialogue()
@@ -49,7 +45,7 @@ namespace QuestSystem
             if (nextDialogue != null)
             {
                 _currentDialogue = nextDialogue;
-                StartCoroutine(DisplayDialogue(nextDialogue));
+                dialogueView.UpdateDialogueUI(_currentDialogue.line, _currentDialogue.speakerIcon);
             }
             else
             {
@@ -59,6 +55,8 @@ namespace QuestSystem
 
         private void EndDialogue()
         {
+            Signals.Get<OnEnableMovement>().Dispatch(true);
+            dialogueView.HideDialogueUI();
             Debug.Log("End dialogue");
             //dialogueView.HideDialogueUI();
             // Тут можна додати інші дії після завершення діалогу
